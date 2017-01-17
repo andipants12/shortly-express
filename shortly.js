@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -13,17 +14,20 @@ var Click = require('./app/models/click');
 
 var app = express();
 
+
+
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
+app.get('/', util.authUser,
 function(req, res) {
   res.render('index');
 });
@@ -39,6 +43,18 @@ function(req, res) {
     res.status(200).send(links.models);
   });
 });
+
+app.get('/signup', 
+  function(req, res) {
+    res.render('signup'); 
+  }
+);
+
+app.get('/login', 
+  function (req, res) {
+    res.render('login');
+  }
+);
 
 app.post('/links', 
 function(req, res) {
@@ -69,6 +85,39 @@ function(req, res) {
         });
       });
     }
+  });
+});
+
+app.post('/signup', util.createUser,
+  function (req, res) {
+    console.log('trying to send the index page');
+    res.redirect('/');
+  });
+
+app.post('/login', function(req, res) {
+ 
+  // var username = req.body.username;
+  // var password = req.body.password;
+  
+  new User({password: req.body.password}).fetch().then(function(found) {
+    if (found) {
+      console.log(found);
+      console.log(req.body.password);
+      req.session.regenerate(function() {
+        req.session.user = req.body.username;
+        res.redirect('/');
+      });
+    } else {
+      res.redirect('/login');
+    }
+  });   
+});
+
+
+
+app.get('/logout', function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('/login');
   });
 });
 
