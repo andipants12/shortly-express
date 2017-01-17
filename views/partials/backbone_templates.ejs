@@ -5,6 +5,11 @@
     <li><a href='#' class='index'>All Links</a></li>
     <li><a href='#' class='create'>Shorten</a></li>
   </ul>
+  <div class='logout'>
+    <form action="/logout" method="get">
+      <input type='submit' value='Logout'>
+    </form>
+  </div>
   </div>
   <div id='container'></div>
 </script>
@@ -30,7 +35,7 @@
 
 <script>
   window.Templates = {};
-  $('[type="text/x-handlebars-template"]').each(function(index, div){
+  $('[type="text/x-handlebars-template"]').each(function(index, div) {
     Templates[div.id] = Handlebars.compile(div.innerHTML);
   });
 </script>

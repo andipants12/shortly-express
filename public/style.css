@@ -97,6 +97,10 @@ h1 {
   margin-left: 55px;
 }
 
+.logout form {
+  margin: 0;
+}
+
 form {
   margin: 10px;
 }
